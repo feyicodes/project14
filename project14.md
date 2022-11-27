@@ -90,3 +90,79 @@ pentest-tooling
 ```
 
 The pentest:children concept stems from **group-vars** where we can declare and set variables for different groups of servers. Hence pentest-tooling and pentest-todo have been grouped under pentest:children. 
+
+SonarQube is an open-source platform developed by SonarSource for continuous inspection pf code quality, used to perform automatic reviews using static analysis to identify bugs, code smells and security vulnerabilities.
+
+Aritfactory is a product of JFrog that serves as a binary repository manager. This functionality makes it an extension to source code repository since it stores the outcome of the build process. It has various automation use-cases, but we would utilize it to build artifacts in this project.
+
+For this project, instead of launching Ansible from the CLI as we have done in previous ones, we launch it from Jenkins. To do this, we need to carry out the following configurations:
+
+**Install & Open Blue Ocean Jenkins Plugin**
+* Install Blue Ocean Plugin
+
+![image](image/img3.png)
+
+* Create a pipeline from the Github repository used in project 13 after generating the required token from github.
+
+![image](image/img3.png)
+
+![image](image/img8.png)
+
+![image](image/img4.png)
+
+![image](image/img5.png)
+
+![image](image/img6.png)
+
+![image](image/img7.png)
+
+After creating the pipeline, we create a Jenkins file inside our directory and defining all steps and actions to be carried out as code.
+
+![image](image/img9.png)
+
+Inside the Ansible project, we create a new directory called **deploy** and a file called **jenkinsfile** within.
+
+![image](image/img10.png)
+
+
+At present, the pipeline consists of only the **Build** stage and we are currently using the **shell script** module to echo the **Building stage**.I added the code snippet below to commence building the jenkinsfile.
+
+```
+    pipeline {
+  agent any
+
+  stages {
+      stage('Build') {
+          steps {
+            script {
+                sh 'echo "Building Stage"'
+            }
+            }
+          }
+        }
+        }
+```
+
+I pushed the current setup to the git repository and the jenkinsfile reflected in the configuration settings on the jenkins server. I edited and included the relative path /delpoy/jenkins file to it.
+
+![image](image/img11.png)
+
+![image](image/img15.png)
+
+After applying and saving the configuration, I checked to confirm it was built successfully and checked the Blue Ocean to confirm that it identifies the build stage on the pipeline  
+![image](image/img12.png)
+
+![image](image/img13.png)
+
+![image](image/img14.png)
+
+The current platform provides a multi-branch pipeline i.e if there was more than one branch in github, this would be discovered by Jenkins and builds would have been triggered for each branch. In order to see this functionality, I created another branch called feature
+
+
+
+
+
+
+
+
+
