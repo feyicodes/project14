@@ -156,7 +156,232 @@ After applying and saving the configuration, I checked to confirm it was built s
 
 ![image](image/img14.png)
 
-The current platform provides a multi-branch pipeline i.e if there was more than one branch in github, this would be discovered by Jenkins and builds would have been triggered for each branch. In order to see this functionality, I created another branch called feature
+The current platform provides a multi-branch pipeline i.e if there was more than one branch in github, this would be discovered by Jenkins and builds would have been triggered for each branch. In order to see this functionality, I created another branch called feature/jeninspipeline-stages and created a new stage called "Testing stage" by adding extra code with the outcome as shown below:
+
+```
+    pipeline {
+  agent any
+
+  stages {
+      stage('Build') {
+          steps {
+            script {
+                sh 'echo "Building Stage"'
+            }
+            }
+          }
+
+   stage('Test') {
+          steps {
+            script {
+                sh 'echo "Testing Stage"'
+            }
+            }
+          }
+        }
+        }
+
+```
+
+I pushed the new branch and scanned the repository on the jenkins platform.
+
+![image](image/img19.png)
+
+I checked the new branch on the pipeline and it reflected an inclusion of the **Test stage** to the pipeline.
+
+![image](image/img20.png)
+
+I created a pull request to merge the latest code into the main branch.
+
+![image](image/img21.png)
+
+Afterwards, I pulled the latest change on the main branch from remote to the local repository, checked on Jenkins and the Blue ocean to confirm the pipeline has been updated.
+
+![image](image/img22.png)
+
+![image](image/img23.png)
+
+
+
+I created a new branch, added more stages to simulate the phases below: 
+* Package
+* Deploy
+* Clean up
+
+```
+    pipeline {
+  agent any
+
+  stages {
+      stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+;          }
+        }
+
+      stage('Build') {
+          steps {
+            script {;
+                sh 'echo "Building Stage"'
+            }
+            }
+          }
+
+   stage('Test') {
+          steps {
+            script {
+                sh 'echo "Testing Stage"'
+            }
+            }
+          }
+
+stage('Package') {
+          steps {
+            script {
+                sh 'echo "Package"'
+            }
+            }
+          }
+
+stage('Deploy') {
+          steps {
+            script {
+                sh 'echo "Deploy to Dev"'
+;            }
+            }
+          }
+
+      stage('cleanup Up'){
+          steps {
+              cleanWs()
+            }
+            }
+
+
+        }
+        }
+
+
+```
+
+I verified all the stages are functioning on Blue Ocean on the 
+
+![image](image/img24.png)
+
+![image](image/img25.png)
+
+
+After confirming the successful build of the required stages on jenkins, I merged the feature/jenkinspipeline-stages branch to the main branch.
+
+![image](image/img26.png)
+
+![image](image/img27.png)
+
+Next, I install ansible on my jenkins instance as well as the dependencies. THe codes to do this is:
+
+```bash
+    yum install python3 python3-pip wget unzip git -y
+    python3 -m pip install --upgrade setuptools
+    python3 -m pip install --upgrade pip
+    python3 -m pip install PyMySQL
+    python3 -m pip install mysql-connector-python
+    python3 -m pip install psycopg2==2.7.5 --ignore-installed
+```
+
+I installed postresql via ansible using:
+
+```bash
+    ansbile-galaxy collection install community.postgresql
+```
+
+I also downloaded and configured the ansible plugin on the jenkins platform
+
+![image](image/img28.png)
+
+I created a RedHat instance for nginx instance and Ubuntu instance for the database, set it up
+
+![image](image/img29.png)
+
+![image](image/img30.png)
+
+![image](image/img31.png)
+
+![image](image/img32.png)
+
+I confirmed that the build with parameters was active
+
+![image](image/img33.png)
+
+I checked the main branch to confirm success after updated configurations.
+
+![image](image/img34.png)
+
+I installed the plug and artifactory plugins in jenkins. 
+
+![image](image/img35.png)
+
+I created an instance for the artifactory server and installed java and artifactory by invoking an ansible playbook via jenkins.
+
+![image](image/img36.png)
+
+![image](image/img37.png)
+
+I accessed jfrog, created a local repository and lined it to the jenkins global configuration 
+
+![image](image/img38.png)
+
+![image](image/img39.png)
+
+![image](image/img40.png)
+
+Next, I create a jenkins file in the php-todo repository and typed in the following code snippet:
+
+```
+  pipeline {
+    agent any
+
+  stages {
+
+     stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+
+    stage('Checkout SCM') {
+      steps {
+            git branch: 'main', url: 'https://github.com/darey-devops/php-todo.git'
+      }
+    }
+
+    stage('Prepare Dependencies') {
+      steps {
+             sh 'mv .env.sample .env'
+             sh 'composer install'
+             sh 'php artisan migrate'
+             sh 'php artisan db:seed'
+             sh 'php artisan key:generate'
+      }
+    }
+  }
+}
+```
+
+I created a database named **homestead** in the database instance using the ansible playbook ran in the jenkins ci pipeline.
+
+![image](image/img41.png)
+
+I checked the db instance to confirm that the database was created.
+
+![image](image/img42.png)
+
+
+
+
 
 
 
